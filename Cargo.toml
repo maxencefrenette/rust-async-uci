@@ -1,0 +1,8 @@
+[package]
+name = "ruci"
+version = "0.0.0"
+authors = ["Maxence Frenette <maxence.frenette@gmail.com>"]
+license = "MIT"
+
+[dependencies]
+nom = "2.2.0"
