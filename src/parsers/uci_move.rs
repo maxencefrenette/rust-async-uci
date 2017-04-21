@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug,PartialEq,Eq)]
 pub struct Move {
     pub from: Square,
@@ -5,10 +7,26 @@ pub struct Move {
     pub promotion_piece: Option<PromotionPiece>
 }
 
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref p) = self.promotion_piece {
+            write!(f, "{}{}{}", self.from, self.to, p)
+        } else {
+            write!(f, "{}{}", self.from, self.to)
+        }
+    }
+}
+
 #[derive(Debug,PartialEq,Eq)]
 pub struct Square {
     pub file: File,
     pub rank: Rank
+}
+
+impl fmt::Display for Square {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}", self.file, self.rank)
+    }
 }
 
 #[derive(Debug,PartialEq,Eq)]
@@ -23,6 +41,22 @@ pub enum File {
     H
 }
 
+impl fmt::Display for File {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let c = match *self {
+            File::A => 'a',
+            File::B => 'b',
+            File::C => 'c',
+            File::D => 'd',
+            File::E => 'e',
+            File::F => 'f',
+            File::G => 'g',
+            File::H => 'h'
+        };
+        write!(f, "{}", c)
+    }
+}
+
 #[derive(Debug,PartialEq,Eq)]
 pub enum Rank {
     First,
@@ -35,12 +69,40 @@ pub enum Rank {
     Eight
 }
 
+impl fmt::Display for Rank {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let c = match *self {
+            Rank::First => '1',
+            Rank::Second => '2',
+            Rank::Third => '3',
+            Rank::Fourth => '4',
+            Rank::Fifth => '5',
+            Rank::Sixth => '6',
+            Rank::Seventh => '7',
+            Rank::Eight => '8'
+        };
+        write!(f, "{}", c)
+    }
+}
+
 #[derive(Debug,PartialEq,Eq)]
 pub enum PromotionPiece {
     Knight,
     Bishop,
     Rook,
     Queen
+}
+
+impl fmt::Display for PromotionPiece {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let c = match *self {
+            PromotionPiece::Knight => 'k',
+            PromotionPiece::Bishop => 'b',
+            PromotionPiece::Rook => 'r',
+            PromotionPiece::Queen => 'q'
+        };
+        write!(f, "{}", c)
+    }
 }
 
 named!(pub uci_move<Move>, do_parse!(
@@ -180,5 +242,21 @@ mod tests {
         assert_eq!(promotion_piece(b"b"), IResult::Done(&b""[..], PromotionPiece::Bishop));
         assert_eq!(promotion_piece(b"r"), IResult::Done(&b""[..], PromotionPiece::Rook));
         assert_eq!(promotion_piece(b"q"), IResult::Done(&b""[..], PromotionPiece::Queen));
+    }
+
+    #[test]
+    fn display_test() {
+        let g6 = Square { file: File::G, rank: Rank::Sixth };
+        let e4 = Square { file: File::E, rank: Rank::Fourth };
+        let g6e4 = Move { from: g6, to: e4, promotion_piece: None };
+
+        assert_eq!(format!("{}", g6e4), "g6e4");
+
+        let a2 = Square { file: File::A, rank: Rank::Second };
+        let a1 = Square { file: File::A, rank: Rank::First };
+        let r = PromotionPiece::Rook;
+        let a2a1r = Move { from: a2, to: a1, promotion_piece: Some(r) };
+
+        assert_eq!(format!("{}", a2a1r), "a2a1r");
     }
 }
