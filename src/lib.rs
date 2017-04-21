@@ -86,7 +86,7 @@ impl Engine {
             .expect("failed to close engine");
     }
 
-    pub fn ponderhit(&mut self) {
+    pub fn ponder_hit(&mut self) {
         self.write("ponderhit");
     }
 
@@ -154,6 +154,9 @@ mod tests {
     #[test]
     fn engine_test() {
         let mut engine = Engine::new("stockfish");
+        engine.go("nodes 1000");
+        engine.ponder_hit();
+        engine.set_position("e2e4 e7e5");
         engine.go("nodes 1000");
     }
 }
