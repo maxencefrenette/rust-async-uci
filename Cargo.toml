@@ -1,5 +1,5 @@
 [package]
-name = "ruci"
+name = "async-uci"
 version = "0.0.0"
 authors = ["Maxence Frenette <maxence.frenette@gmail.com>"]
 license = "MIT"
