@@ -107,8 +107,8 @@ impl Engine {
     /// # Examples
     ///
     /// ```
-    /// use ruci::Engine;
-    ///
+    /// use async_uci::Engine;
+    /// 
     /// let mut engine = Engine::new("stockfish");
     /// engine.write("go nodes 1000");
     /// ```
