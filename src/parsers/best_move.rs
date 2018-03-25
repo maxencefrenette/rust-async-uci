@@ -31,7 +31,6 @@ named!(pub best_move<EngineMessage>, do_parse!(
 mod tests {
     use super::*;
     use super::super::uci_move::{Square, File, Rank};
-    use nom::IResult;
 
     #[test]
     fn best_move_test() {
@@ -45,7 +44,7 @@ mod tests {
 
         assert_eq!(
             best_move(b"bestmove g7g1 ponder a1a7\n"),
-            IResult::Done(
+            Ok((
                 &b"\n"[..],
                 EngineMessage::BestMove(
                     BestMove {
@@ -53,7 +52,7 @@ mod tests {
                         ponder: Some(a1a7)
                     }
                 )
-            )
+            ))
         );
     }
 
@@ -65,7 +64,7 @@ mod tests {
 
         assert_eq!(
             best_move(b"bestmove f1h3\n"),
-            IResult::Done(
+            Ok((
                 &b"\n"[..],
                 EngineMessage::BestMove(
                     BestMove {
@@ -73,7 +72,7 @@ mod tests {
                         ponder: None
                     }
                 )
-            )
+            ))
         );
     }
 }

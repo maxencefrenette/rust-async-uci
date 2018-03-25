@@ -175,73 +175,72 @@ named!(promotion_piece<PromotionPiece>, map_opt!(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nom::{IResult};
 
     #[test]
     fn move_test() {
         assert_eq!(
             uci_move(b"e2e4 "),
-            IResult::Done(
+            Ok((
                 &b" "[..],
                 Move {
                     from: Square { file: File::E, rank: Rank::Second },
                     to: Square { file: File::E, rank: Rank::Fourth },
                     promotion_piece: None
                 }
-            )
+            ))
         );
 
         assert_eq!(
             uci_move(b"b7b8r"),
-            IResult::Done(
+            Ok((
                 &b""[..],
                 Move {
                     from: Square { file: File::B, rank: Rank::Seventh },
                     to: Square { file: File::B, rank: Rank::Eight },
                     promotion_piece: Some(PromotionPiece::Rook)
                 }
-            )
+            ))
         );
     }
 
     #[test]
     fn square_test() {
-        assert_eq!(square(b"a1"), IResult::Done(&b""[..], Square { file: File::A, rank: Rank::First }));
-        assert_eq!(square(b"c7"), IResult::Done(&b""[..], Square { file: File::C, rank: Rank::Seventh }));
-        assert_eq!(square(b"e4"), IResult::Done(&b""[..], Square { file: File::E, rank: Rank::Fourth }));
-        assert_eq!(square(b"h6"), IResult::Done(&b""[..], Square { file: File::H, rank: Rank::Sixth }));
+        assert_eq!(square(b"a1"), Ok((&b""[..], Square { file: File::A, rank: Rank::First })));
+        assert_eq!(square(b"c7"), Ok((&b""[..], Square { file: File::C, rank: Rank::Seventh })));
+        assert_eq!(square(b"e4"), Ok((&b""[..], Square { file: File::E, rank: Rank::Fourth })));
+        assert_eq!(square(b"h6"), Ok((&b""[..], Square { file: File::H, rank: Rank::Sixth })));
     }
 
     #[test]
     fn file_test() {
-        assert_eq!(file(b"a"), IResult::Done(&b""[..], File::A));
-        assert_eq!(file(b"b"), IResult::Done(&b""[..], File::B));
-        assert_eq!(file(b"c"), IResult::Done(&b""[..], File::C));
-        assert_eq!(file(b"d"), IResult::Done(&b""[..], File::D));
-        assert_eq!(file(b"e"), IResult::Done(&b""[..], File::E));
-        assert_eq!(file(b"f"), IResult::Done(&b""[..], File::F));
-        assert_eq!(file(b"g"), IResult::Done(&b""[..], File::G));
-        assert_eq!(file(b"h"), IResult::Done(&b""[..], File::H));
+        assert_eq!(file(b"a"), Ok((&b""[..], File::A)));
+        assert_eq!(file(b"b"), Ok((&b""[..], File::B)));
+        assert_eq!(file(b"c"), Ok((&b""[..], File::C)));
+        assert_eq!(file(b"d"), Ok((&b""[..], File::D)));
+        assert_eq!(file(b"e"), Ok((&b""[..], File::E)));
+        assert_eq!(file(b"f"), Ok((&b""[..], File::F)));
+        assert_eq!(file(b"g"), Ok((&b""[..], File::G)));
+        assert_eq!(file(b"h"), Ok((&b""[..], File::H)));
     }
 
     #[test]
     fn rank_test() {
-        assert_eq!(rank(b"1"), IResult::Done(&b""[..], Rank::First));
-        assert_eq!(rank(b"2"), IResult::Done(&b""[..], Rank::Second));
-        assert_eq!(rank(b"3"), IResult::Done(&b""[..], Rank::Third));
-        assert_eq!(rank(b"4"), IResult::Done(&b""[..], Rank::Fourth));
-        assert_eq!(rank(b"5"), IResult::Done(&b""[..], Rank::Fifth));
-        assert_eq!(rank(b"6"), IResult::Done(&b""[..], Rank::Sixth));
-        assert_eq!(rank(b"7"), IResult::Done(&b""[..], Rank::Seventh));
-        assert_eq!(rank(b"8"), IResult::Done(&b""[..], Rank::Eight));
+        assert_eq!(rank(b"1"), Ok((&b""[..], Rank::First)));
+        assert_eq!(rank(b"2"), Ok((&b""[..], Rank::Second)));
+        assert_eq!(rank(b"3"), Ok((&b""[..], Rank::Third)));
+        assert_eq!(rank(b"4"), Ok((&b""[..], Rank::Fourth)));
+        assert_eq!(rank(b"5"), Ok((&b""[..], Rank::Fifth)));
+        assert_eq!(rank(b"6"), Ok((&b""[..], Rank::Sixth)));
+        assert_eq!(rank(b"7"), Ok((&b""[..], Rank::Seventh)));
+        assert_eq!(rank(b"8"), Ok((&b""[..], Rank::Eight)));
     }
 
     #[test]
     fn promotion_piece_test() {
-        assert_eq!(promotion_piece(b"k"), IResult::Done(&b""[..], PromotionPiece::Knight));
-        assert_eq!(promotion_piece(b"b"), IResult::Done(&b""[..], PromotionPiece::Bishop));
-        assert_eq!(promotion_piece(b"r"), IResult::Done(&b""[..], PromotionPiece::Rook));
-        assert_eq!(promotion_piece(b"q"), IResult::Done(&b""[..], PromotionPiece::Queen));
+        assert_eq!(promotion_piece(b"k"), Ok((&b""[..], PromotionPiece::Knight)));
+        assert_eq!(promotion_piece(b"b"), Ok((&b""[..], PromotionPiece::Bishop)));
+        assert_eq!(promotion_piece(b"r"), Ok((&b""[..], PromotionPiece::Rook)));
+        assert_eq!(promotion_piece(b"q"), Ok((&b""[..], PromotionPiece::Queen)));
     }
 
     #[test]

@@ -2,7 +2,6 @@
 
 mod parsers;
 
-use nom::IResult;
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdout, Command, Stdio};
 use parsers::{engine_message, EngineMessage};
@@ -135,7 +134,7 @@ impl Engine {
 
     pub fn parse_line(&mut self) -> EngineMessage {
         match engine_message(self.read_line().as_bytes()) {
-            IResult::Done(_, message) => message,
+            Ok((_, message)) => message,
             _ => panic!("couldn't parse line from engine")
         }
     }

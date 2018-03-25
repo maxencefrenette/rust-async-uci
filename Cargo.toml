@@ -5,4 +5,4 @@ authors = ["Maxence Frenette <maxence.frenette@gmail.com>"]
 license = "MIT"
 
 [dependencies]
-nom = "2.2.0"
+nom = "4.0.0-beta2"
