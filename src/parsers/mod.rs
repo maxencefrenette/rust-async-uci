@@ -149,11 +149,15 @@ mod tests {
         );
 
         assert_eq!(
-            engine_message(CompleteByteSlice(b"info depth 29 currmove d2d4 currmovenumber 1")),
+            engine_message(CompleteByteSlice(
+                b"info depth 29 currmove d2d4 currmovenumber 1"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::Info))
         );
         assert_eq!(
-            engine_message(CompleteByteSlice(b"info depth 29 currmove c2c4 currmovenumber 8")),
+            engine_message(CompleteByteSlice(
+                b"info depth 29 currmove c2c4 currmovenumber 8"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::Info))
         );
     }
@@ -161,19 +165,27 @@ mod tests {
     #[test]
     fn option_test() {
         assert_eq!(
-            engine_message(CompleteByteSlice(b"option name Debug Log File type string default")),
+            engine_message(CompleteByteSlice(
+                b"option name Debug Log File type string default"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::UciOption))
         );
         assert_eq!(
-            engine_message(CompleteByteSlice(b"option name Contempt type spin default 0 min -100 max 100")),
+            engine_message(CompleteByteSlice(
+                b"option name Contempt type spin default 0 min -100 max 100"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::UciOption))
         );
         assert_eq!(
-            engine_message(CompleteByteSlice(b"option name Threads type spin default 1 min 1 max 128")),
+            engine_message(CompleteByteSlice(
+                b"option name Threads type spin default 1 min 1 max 128"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::UciOption))
         );
         assert_eq!(
-            engine_message(CompleteByteSlice(b"option name Hash type spin default 16 min 1 max 1048576")),
+            engine_message(CompleteByteSlice(
+                b"option name Hash type spin default 16 min 1 max 1048576"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::UciOption))
         );
     }
@@ -181,7 +193,9 @@ mod tests {
     #[test]
     fn unknown_command_test() {
         assert_eq!(
-            engine_message(CompleteByteSlice(b"Stockfish 8 64 by T. Romstad, M. Costalba, J. Kiiski, G. Linscott")),
+            engine_message(CompleteByteSlice(
+                b"Stockfish 8 64 by T. Romstad, M. Costalba, J. Kiiski, G. Linscott"
+            )),
             Ok((CompleteByteSlice(&b""[..]), EngineMessage::UnknownCommand))
         );
         assert_eq!(

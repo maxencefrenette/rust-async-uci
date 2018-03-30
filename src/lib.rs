@@ -1,7 +1,8 @@
 #![feature(proc_macro, conservative_impl_trait, generators)]
 
-#[macro_use] extern crate nom;
 extern crate futures_await as futures;
+#[macro_use]
+extern crate nom;
 extern crate tokio_core;
 extern crate tokio_io;
 extern crate tokio_process;
@@ -12,11 +13,11 @@ use futures::prelude::*;
 use futures::{Future, Stream};
 use nom::types::CompleteByteSlice;
 use parsers::{engine_message, EngineMessage};
-use std::io::{BufReader};
+use std::io::BufReader;
 use std::process::{Command, Stdio};
 use tokio_core::reactor::Handle;
-use tokio_io::io::{lines, Lines, write_all};
-use tokio_process::{CommandExt, Child, ChildStdin, ChildStdout};
+use tokio_io::io::{lines, write_all, Lines};
+use tokio_process::{Child, ChildStdin, ChildStdout, CommandExt};
 
 pub use parsers::{BestMove, File, Move, PromotionPiece, Rank};
 
@@ -68,14 +69,14 @@ impl Engine {
     #[async]
     fn wait_for(self, message: EngineMessage) -> Result<Self, ()> {
         let mut engine = self;
-        
+
         loop {
             let pair = await!(engine.parse_line()).expect("Couldn't parse line");
             let m = pair.0;
             engine = pair.1;
 
             if m == message {
-                return Ok(engine)
+                return Ok(engine);
             }
         }
     }
@@ -86,7 +87,8 @@ impl Engine {
     /// the sync() method.
     #[async]
     pub fn new_game(self) -> Result<Self, ()> {
-        let engine = await!(self.write("ucinewgame\n".to_string())).expect("failed to write to engine");
+        let engine =
+            await!(self.write("ucinewgame\n".to_string())).expect("failed to write to engine");
         await!(engine.sync())
     }
 
@@ -101,7 +103,8 @@ impl Engine {
 
     #[async]
     pub fn go(self, params: String) -> Result<(Self, BestMove), ()> {
-        let mut engine = await!(self.write(format!("go {}\n", params))).expect("failed to write to engine");
+        let mut engine =
+            await!(self.write(format!("go {}\n", params))).expect("failed to write to engine");
 
         loop {
             let pair = await!(engine.parse_line()).expect("Couldn't parse line");
@@ -130,13 +133,12 @@ impl Engine {
                 new_self.process.wait_with_output()
             })
             .map(|_| ());
-        
+
         Box::new(future)
     }
 
     pub fn kill(&mut self) {
-        self.process.kill()
-            .expect("failed to kill engine");
+        self.process.kill().expect("failed to kill engine");
     }
 
     /// Writes in the engine's stdin buffer
@@ -147,11 +149,11 @@ impl Engine {
     /// extern crate async_uci;
     /// extern crate futures;
     /// extern crate tokio_core;
-    /// 
+    ///
     /// use async_uci::Engine;
     /// use futures::future::Future;
     /// use tokio_core::reactor::Core;
-    /// 
+    ///
     /// fn main() {
     ///     let mut core = Core::new().unwrap();
     ///     let future = Engine::new("stockfish".to_string(), &core.handle())
@@ -166,17 +168,13 @@ impl Engine {
         let stdin = self.stdin;
         let process = self.process;
 
-        let future = write_all(stdin, message.into_bytes()).then(|res| {
-            match res {
-                Ok((stdin, _)) => {
-                    Ok(Engine {
-                        process,
-                        stdin,
-                        lines
-                    })
-                },
-                Err(_) => panic!("failed to write to engine"),
-            }
+        let future = write_all(stdin, message.into_bytes()).then(|res| match res {
+            Ok((stdin, _)) => Ok(Engine {
+                process,
+                stdin,
+                lines,
+            }),
+            Err(_) => panic!("failed to write to engine"),
         });
 
         Box::new(future)
@@ -187,37 +185,35 @@ impl Engine {
         let stdin = self.stdin;
         let process = self.process;
 
-        let line = lines
-            .into_future()
-            .then(|res| {
-                match res {
-                    Ok((l, stream)) => {
-                        let l = l.unwrap();
-                        let new_self = Engine {
-                            process,
-                            stdin,
-                            lines: stream,
-                        };
-                        println!("[engine -> gui] {}", l);
-                        
-                        Ok((l, new_self))
-                    }
-                    Err(_) => panic!("error reading line")
-                }
-            });
-        
+        let line = lines.into_future().then(|res| match res {
+            Ok((l, stream)) => {
+                let l = l.unwrap();
+                let new_self = Engine {
+                    process,
+                    stdin,
+                    lines: stream,
+                };
+                println!("[engine -> gui] {}", l);
+
+                Ok((l, new_self))
+            }
+            Err(_) => panic!("error reading line"),
+        });
+
         Box::new(line)
     }
 
     pub fn parse_line(self) -> Box<Future<Item = (EngineMessage, Self), Error = ()>> {
-        let message = self.read_line()
-            .map(|(line, new_self)| {
-                match engine_message(CompleteByteSlice(line.as_bytes())) {
-                    Ok((_, message)) => (message, new_self),
-                    e => {println!("{:?}", e); panic!("error parsing line")}, // TODO: better error management, make unknown_command parser work
-                }
-            });
-        
+        let message = self.read_line().map(|(line, new_self)| {
+            match engine_message(CompleteByteSlice(line.as_bytes())) {
+                Ok((_, message)) => (message, new_self),
+                e => {
+                    println!("{:?}", e);
+                    panic!("error parsing line")
+                } // TODO: better error management, make unknown_command parser work
+            }
+        });
+
         Box::new(message)
     }
 }
@@ -234,7 +230,8 @@ mod tests {
         let mut engine = core.run(engine_future).unwrap();
         engine = core.run(engine.go("nodes 1000".to_string())).unwrap().0;
         engine = core.run(engine.ponder_hit()).unwrap();
-        engine = core.run(engine.set_position("e2e4 e7e5".to_string())).unwrap();
+        engine = core.run(engine.set_position("e2e4 e7e5".to_string()))
+            .unwrap();
         engine = core.run(engine.go("nodes 1000".to_string())).unwrap().0;
         core.run(engine.quit()).unwrap();
     }
