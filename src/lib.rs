@@ -211,7 +211,7 @@ impl Engine {
             e => {
                 println!("{:?}", e);
                 panic!("error parsing line")
-            } // TODO: better error management, make unknown_command parser work
+            } // TODO: better error management
         }
     }
 }
