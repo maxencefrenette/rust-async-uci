@@ -92,7 +92,7 @@ impl Engine {
         await!(engine.sync())
     }
 
-    pub fn set_option(&mut self) {
+    pub fn set_option(self) {
         unimplemented!();
     }
 
@@ -118,23 +118,20 @@ impl Engine {
         }
     }
 
-    pub fn stop(self) -> Box<Future<Item = (), Error = ()>> {
+    pub fn stop(self) {
         unimplemented!();
     }
 
-    pub fn ponder_hit(self) -> Box<Future<Item = Engine, Error = ()>> {
+    pub fn ponder_hit(self) -> impl Future<Item = Engine, Error = ()> {
         self.write("ponderhit".to_string())
     }
 
-    pub fn quit(self) -> Box<Future<Item = (), Error = std::io::Error>> {
-        let future = self.write("quit\n".to_string())
-            .then(|res| {
-                let new_self = res.unwrap();
-                new_self.process.wait_with_output()
-            })
-            .map(|_| ());
-
-        Box::new(future)
+    #[async]
+    pub fn quit(self) -> Result<(), std::io::Error> {
+        let mut self2 = self;
+        self2 = await!(self2.write("quit\n".to_string())).unwrap();
+        await!(self2.process.wait_with_output()).unwrap();
+        Ok(())
     }
 
     pub fn kill(&mut self) {
@@ -161,31 +158,35 @@ impl Engine {
     ///     core.run(future);
     /// }
     /// ```
-    pub fn write(self, message: String) -> Box<Future<Item = Self, Error = ()>> {
+    #[async]
+    pub fn write(self, message: String) -> Result<Self, ()> {
         print!("[gui -> engine] {}", message);
 
         let lines = self.lines;
         let stdin = self.stdin;
         let process = self.process;
 
-        let future = write_all(stdin, message.into_bytes()).then(|res| match res {
+        let res = await!(write_all(stdin, message.into_bytes()));
+        
+        match res {
             Ok((stdin, _)) => Ok(Engine {
                 process,
                 stdin,
                 lines,
             }),
             Err(_) => panic!("failed to write to engine"),
-        });
-
-        Box::new(future)
+        }
     }
 
-    pub fn read_line(self) -> Box<Future<Item = (String, Self), Error = ()>> {
+    #[async]
+    pub fn read_line(self) -> Result<(String, Self), ()> {
         let lines = self.lines;
         let stdin = self.stdin;
         let process = self.process;
 
-        let line = lines.into_future().then(|res| match res {
+        let res = await!(lines.into_future());
+        
+        match res {
             Ok((l, stream)) => {
                 let l = l.unwrap();
                 let new_self = Engine {
@@ -198,23 +199,20 @@ impl Engine {
                 Ok((l, new_self))
             }
             Err(_) => panic!("error reading line"),
-        });
-
-        Box::new(line)
+        }
     }
 
-    pub fn parse_line(self) -> Box<Future<Item = (EngineMessage, Self), Error = ()>> {
-        let message = self.read_line().map(|(line, new_self)| {
-            match engine_message(CompleteByteSlice(line.as_bytes())) {
-                Ok((_, message)) => (message, new_self),
-                e => {
-                    println!("{:?}", e);
-                    panic!("error parsing line")
-                } // TODO: better error management, make unknown_command parser work
-            }
-        });
+    #[async]
+    pub fn parse_line(self) -> Result<(EngineMessage, Self), ()> {
+        let (line, self2) = await!(self.read_line()).unwrap();
 
-        Box::new(message)
+        match engine_message(CompleteByteSlice(line.as_bytes())) {
+            Ok((_, message)) => Ok((message, self2)),
+            e => {
+                println!("{:?}", e);
+                panic!("error parsing line")
+            } // TODO: better error management, make unknown_command parser work
+        }
     }
 }
 
