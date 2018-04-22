@@ -167,7 +167,7 @@ impl Engine {
         let process = self.process;
 
         let res = await!(write_all(stdin, message.into_bytes()));
-        
+
         match res {
             Ok((stdin, _)) => Ok(Engine {
                 process,
@@ -185,7 +185,7 @@ impl Engine {
         let process = self.process;
 
         let res = await!(lines.into_future());
-        
+
         match res {
             Ok((l, stream)) => {
                 let l = l.unwrap();

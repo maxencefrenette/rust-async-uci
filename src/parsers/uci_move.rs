@@ -1,11 +1,11 @@
 use nom::{AsBytes, types::CompleteByteSlice};
 use std::fmt;
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Move {
     pub from: Square,
     pub to: Square,
-    pub promotion_piece: Option<PromotionPiece>
+    pub promotion_piece: Option<PromotionPiece>,
 }
 
 impl fmt::Display for Move {
@@ -18,10 +18,10 @@ impl fmt::Display for Move {
     }
 }
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Square {
     pub file: File,
-    pub rank: Rank
+    pub rank: Rank,
 }
 
 impl fmt::Display for Square {
@@ -30,7 +30,7 @@ impl fmt::Display for Square {
     }
 }
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum File {
     A,
     B,
@@ -39,7 +39,7 @@ pub enum File {
     E,
     F,
     G,
-    H
+    H,
 }
 
 impl fmt::Display for File {
@@ -52,13 +52,13 @@ impl fmt::Display for File {
             File::E => 'e',
             File::F => 'f',
             File::G => 'g',
-            File::H => 'h'
+            File::H => 'h',
         };
         write!(f, "{}", c)
     }
 }
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Rank {
     First,
     Second,
@@ -67,7 +67,7 @@ pub enum Rank {
     Fifth,
     Sixth,
     Seventh,
-    Eight
+    Eight,
 }
 
 impl fmt::Display for Rank {
@@ -80,18 +80,18 @@ impl fmt::Display for Rank {
             Rank::Fifth => '5',
             Rank::Sixth => '6',
             Rank::Seventh => '7',
-            Rank::Eight => '8'
+            Rank::Eight => '8',
         };
         write!(f, "{}", c)
     }
 }
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum PromotionPiece {
     Knight,
     Bishop,
     Rook,
-    Queen
+    Queen,
 }
 
 impl fmt::Display for PromotionPiece {
@@ -100,7 +100,7 @@ impl fmt::Display for PromotionPiece {
             PromotionPiece::Knight => 'k',
             PromotionPiece::Bishop => 'b',
             PromotionPiece::Rook => 'r',
-            PromotionPiece::Queen => 'q'
+            PromotionPiece::Queen => 'q',
         };
         write!(f, "{}", c)
     }
@@ -185,9 +185,15 @@ mod tests {
             Ok((
                 EMPTY_SLICE,
                 Move {
-                    from: Square { file: File::E, rank: Rank::Second },
-                    to: Square { file: File::E, rank: Rank::Fourth },
-                    promotion_piece: None
+                    from: Square {
+                        file: File::E,
+                        rank: Rank::Second,
+                    },
+                    to: Square {
+                        file: File::E,
+                        rank: Rank::Fourth,
+                    },
+                    promotion_piece: None,
                 }
             ))
         );
@@ -197,9 +203,15 @@ mod tests {
             Ok((
                 EMPTY_SLICE,
                 Move {
-                    from: Square { file: File::B, rank: Rank::Seventh },
-                    to: Square { file: File::B, rank: Rank::Eight },
-                    promotion_piece: Some(PromotionPiece::Rook)
+                    from: Square {
+                        file: File::B,
+                        rank: Rank::Seventh,
+                    },
+                    to: Square {
+                        file: File::B,
+                        rank: Rank::Eight,
+                    },
+                    promotion_piece: Some(PromotionPiece::Rook),
                 }
             ))
         );
@@ -209,13 +221,44 @@ mod tests {
     fn square_test() {
         assert_eq!(
             square(CompleteByteSlice(b"a1")),
-            Ok((EMPTY_SLICE, Square { file: File::A, rank: Rank::First }))
+            Ok((
+                EMPTY_SLICE,
+                Square {
+                    file: File::A,
+                    rank: Rank::First,
+                }
+            ))
         );
         assert_eq!(
-            square(CompleteByteSlice(b"c7")), Ok((EMPTY_SLICE, Square { file: File::C, rank: Rank::Seventh }))
+            square(CompleteByteSlice(b"c7")),
+            Ok((
+                EMPTY_SLICE,
+                Square {
+                    file: File::C,
+                    rank: Rank::Seventh,
+                }
+            ))
         );
-        assert_eq!(square(CompleteByteSlice(b"e4")), Ok((EMPTY_SLICE, Square { file: File::E, rank: Rank::Fourth })));
-        assert_eq!(square(CompleteByteSlice(b"h6")), Ok((EMPTY_SLICE, Square { file: File::H, rank: Rank::Sixth })));
+        assert_eq!(
+            square(CompleteByteSlice(b"e4")),
+            Ok((
+                EMPTY_SLICE,
+                Square {
+                    file: File::E,
+                    rank: Rank::Fourth,
+                }
+            ))
+        );
+        assert_eq!(
+            square(CompleteByteSlice(b"h6")),
+            Ok((
+                EMPTY_SLICE,
+                Square {
+                    file: File::H,
+                    rank: Rank::Sixth,
+                }
+            ))
+        );
     }
 
     #[test]
@@ -232,36 +275,92 @@ mod tests {
 
     #[test]
     fn rank_test() {
-        assert_eq!(rank(CompleteByteSlice(b"1")), Ok((EMPTY_SLICE, Rank::First)));
-        assert_eq!(rank(CompleteByteSlice(b"2")), Ok((EMPTY_SLICE, Rank::Second)));
-        assert_eq!(rank(CompleteByteSlice(b"3")), Ok((EMPTY_SLICE, Rank::Third)));
-        assert_eq!(rank(CompleteByteSlice(b"4")), Ok((EMPTY_SLICE, Rank::Fourth)));
-        assert_eq!(rank(CompleteByteSlice(b"5")), Ok((EMPTY_SLICE, Rank::Fifth)));
-        assert_eq!(rank(CompleteByteSlice(b"6")), Ok((EMPTY_SLICE, Rank::Sixth)));
-        assert_eq!(rank(CompleteByteSlice(b"7")), Ok((EMPTY_SLICE, Rank::Seventh)));
-        assert_eq!(rank(CompleteByteSlice(b"8")), Ok((EMPTY_SLICE, Rank::Eight)));
+        assert_eq!(
+            rank(CompleteByteSlice(b"1")),
+            Ok((EMPTY_SLICE, Rank::First))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"2")),
+            Ok((EMPTY_SLICE, Rank::Second))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"3")),
+            Ok((EMPTY_SLICE, Rank::Third))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"4")),
+            Ok((EMPTY_SLICE, Rank::Fourth))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"5")),
+            Ok((EMPTY_SLICE, Rank::Fifth))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"6")),
+            Ok((EMPTY_SLICE, Rank::Sixth))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"7")),
+            Ok((EMPTY_SLICE, Rank::Seventh))
+        );
+        assert_eq!(
+            rank(CompleteByteSlice(b"8")),
+            Ok((EMPTY_SLICE, Rank::Eight))
+        );
     }
 
     #[test]
     fn promotion_piece_test() {
-        assert_eq!(promotion_piece(CompleteByteSlice(b"k")), Ok((EMPTY_SLICE, PromotionPiece::Knight)));
-        assert_eq!(promotion_piece(CompleteByteSlice(b"b")), Ok((EMPTY_SLICE, PromotionPiece::Bishop)));
-        assert_eq!(promotion_piece(CompleteByteSlice(b"r")), Ok((EMPTY_SLICE, PromotionPiece::Rook)));
-        assert_eq!(promotion_piece(CompleteByteSlice(b"q")), Ok((EMPTY_SLICE, PromotionPiece::Queen)));
+        assert_eq!(
+            promotion_piece(CompleteByteSlice(b"k")),
+            Ok((EMPTY_SLICE, PromotionPiece::Knight))
+        );
+        assert_eq!(
+            promotion_piece(CompleteByteSlice(b"b")),
+            Ok((EMPTY_SLICE, PromotionPiece::Bishop))
+        );
+        assert_eq!(
+            promotion_piece(CompleteByteSlice(b"r")),
+            Ok((EMPTY_SLICE, PromotionPiece::Rook))
+        );
+        assert_eq!(
+            promotion_piece(CompleteByteSlice(b"q")),
+            Ok((EMPTY_SLICE, PromotionPiece::Queen))
+        );
     }
 
     #[test]
     fn display_test() {
-        let g6 = Square { file: File::G, rank: Rank::Sixth };
-        let e4 = Square { file: File::E, rank: Rank::Fourth };
-        let g6e4 = Move { from: g6, to: e4, promotion_piece: None };
+        let g6 = Square {
+            file: File::G,
+            rank: Rank::Sixth,
+        };
+        let e4 = Square {
+            file: File::E,
+            rank: Rank::Fourth,
+        };
+        let g6e4 = Move {
+            from: g6,
+            to: e4,
+            promotion_piece: None,
+        };
 
         assert_eq!(format!("{}", g6e4), "g6e4");
 
-        let a2 = Square { file: File::A, rank: Rank::Second };
-        let a1 = Square { file: File::A, rank: Rank::First };
+        let a2 = Square {
+            file: File::A,
+            rank: Rank::Second,
+        };
+        let a1 = Square {
+            file: File::A,
+            rank: Rank::First,
+        };
         let r = PromotionPiece::Rook;
-        let a2a1r = Move { from: a2, to: a1, promotion_piece: Some(r) };
+        let a2a1r = Move {
+            from: a2,
+            to: a1,
+            promotion_piece: Some(r),
+        };
 
         assert_eq!(format!("{}", a2a1r), "a2a1r");
     }
