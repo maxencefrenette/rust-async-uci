@@ -11,7 +11,7 @@ mod parsers;
 
 use futures::prelude::*;
 use futures::{Future, Stream};
-use nom::types::CompleteByteSlice;
+use nom::types::CompleteStr;
 use parsers::{engine_message, EngineMessage};
 use std::io::BufReader;
 use std::process::{Command, Stdio};
@@ -206,7 +206,7 @@ impl Engine {
     pub fn parse_line(self) -> Result<(EngineMessage, Self), ()> {
         let (line, self2) = await!(self.read_line()).unwrap();
 
-        match engine_message(CompleteByteSlice(line.as_bytes())) {
+        match engine_message(CompleteStr(&line)) {
             Ok((_, message)) => Ok((message, self2)),
             e => {
                 println!("{:?}", e);

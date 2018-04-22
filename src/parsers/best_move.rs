@@ -1,6 +1,6 @@
 use super::EngineMessage;
 use super::uci_move::{uci_move, Move};
-use nom::{space, types::CompleteByteSlice};
+use nom::{space, types::CompleteStr};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BestMove {
@@ -8,7 +8,7 @@ pub struct BestMove {
     pub ponder: Option<Move>,
 }
 
-named!(ponder<CompleteByteSlice, Move>, do_parse!(
+named!(ponder<CompleteStr, Move>, do_parse!(
     space >>
     tag!("ponder") >>
     space >>
@@ -16,7 +16,7 @@ named!(ponder<CompleteByteSlice, Move>, do_parse!(
     (ponder_move)
 ));
 
-named!(pub best_move<CompleteByteSlice, EngineMessage>, do_parse!(
+named!(pub best_move<CompleteStr, EngineMessage>, do_parse!(
     tag!("bestmove") >>
     space >>
     best_move: uci_move >>
@@ -63,9 +63,9 @@ mod tests {
         };
 
         assert_eq!(
-            best_move(CompleteByteSlice(b"bestmove g7g1 ponder a1a7")),
+            best_move(CompleteStr("bestmove g7g1 ponder a1a7")),
             Ok((
-                CompleteByteSlice(&b""[..]),
+                CompleteStr(""),
                 EngineMessage::BestMove(BestMove {
                     best_move: g7g1,
                     ponder: Some(a1a7),
@@ -91,9 +91,9 @@ mod tests {
         };
 
         assert_eq!(
-            best_move(CompleteByteSlice(b"bestmove f1h3")),
+            best_move(CompleteStr("bestmove f1h3")),
             Ok((
-                CompleteByteSlice(&b""[..]),
+                CompleteStr(""),
                 EngineMessage::BestMove(BestMove {
                     best_move: f1h3,
                     ponder: None,

@@ -1,4 +1,4 @@
-use nom::{AsBytes, types::CompleteByteSlice};
+use nom::types::CompleteStr;
 use std::fmt;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -106,7 +106,7 @@ impl fmt::Display for PromotionPiece {
     }
 }
 
-named!(pub uci_move<CompleteByteSlice, Move>, do_parse!(
+named!(pub uci_move<CompleteStr, Move>, do_parse!(
     from: square >>
     to: square >>
     promo_piece: opt!(promotion_piece) >>
@@ -117,7 +117,7 @@ named!(pub uci_move<CompleteByteSlice, Move>, do_parse!(
     })
 ));
 
-named!(square<CompleteByteSlice, Square>, do_parse!(
+named!(square<CompleteStr, Square>, do_parse!(
     file: file >>
     rank: rank >>
     (Square {
@@ -126,9 +126,9 @@ named!(square<CompleteByteSlice, Square>, do_parse!(
     })
 ));
 
-named!(file<CompleteByteSlice, File>, map_opt!(
+named!(file<CompleteStr, File>, map_opt!(
     take!(1),
-    | input: CompleteByteSlice | -> Option<File> {
+    | input: CompleteStr | -> Option<File> {
         match input.as_bytes()[0] {
             b'a' => Some(File::A),
             b'b' => Some(File::B),
@@ -143,9 +143,9 @@ named!(file<CompleteByteSlice, File>, map_opt!(
     }
 ));
 
-named!(rank<CompleteByteSlice, Rank>, map_opt!(
+named!(rank<CompleteStr, Rank>, map_opt!(
     take!(1),
-    | input: CompleteByteSlice | -> Option<Rank> {
+    | input: CompleteStr | -> Option<Rank> {
         match input.as_bytes()[0] {
             b'1' => Some(Rank::First),
             b'2' => Some(Rank::Second),
@@ -160,9 +160,9 @@ named!(rank<CompleteByteSlice, Rank>, map_opt!(
     }
 ));
 
-named!(promotion_piece<CompleteByteSlice, PromotionPiece>, map_opt!(
+named!(promotion_piece<CompleteStr, PromotionPiece>, map_opt!(
     take!(1),
-    | input: CompleteByteSlice | -> Option<PromotionPiece> {
+    | input: CompleteStr | -> Option<PromotionPiece> {
         match input.as_bytes()[0] {
             b'k' => Some(PromotionPiece::Knight),
             b'b' => Some(PromotionPiece::Bishop),
@@ -176,12 +176,12 @@ named!(promotion_piece<CompleteByteSlice, PromotionPiece>, map_opt!(
 #[cfg(test)]
 mod tests {
     use super::*;
-    const EMPTY_SLICE: CompleteByteSlice = CompleteByteSlice(b"");
+    const EMPTY_SLICE: CompleteStr = CompleteStr("");
 
     #[test]
     fn move_test() {
         assert_eq!(
-            uci_move(CompleteByteSlice(b"e2e4")),
+            uci_move(CompleteStr("e2e4")),
             Ok((
                 EMPTY_SLICE,
                 Move {
@@ -199,7 +199,7 @@ mod tests {
         );
 
         assert_eq!(
-            uci_move(CompleteByteSlice(b"b7b8r")),
+            uci_move(CompleteStr("b7b8r")),
             Ok((
                 EMPTY_SLICE,
                 Move {
@@ -220,7 +220,7 @@ mod tests {
     #[test]
     fn square_test() {
         assert_eq!(
-            square(CompleteByteSlice(b"a1")),
+            square(CompleteStr("a1")),
             Ok((
                 EMPTY_SLICE,
                 Square {
@@ -230,7 +230,7 @@ mod tests {
             ))
         );
         assert_eq!(
-            square(CompleteByteSlice(b"c7")),
+            square(CompleteStr("c7")),
             Ok((
                 EMPTY_SLICE,
                 Square {
@@ -240,7 +240,7 @@ mod tests {
             ))
         );
         assert_eq!(
-            square(CompleteByteSlice(b"e4")),
+            square(CompleteStr("e4")),
             Ok((
                 EMPTY_SLICE,
                 Square {
@@ -250,7 +250,7 @@ mod tests {
             ))
         );
         assert_eq!(
-            square(CompleteByteSlice(b"h6")),
+            square(CompleteStr("h6")),
             Ok((
                 EMPTY_SLICE,
                 Square {
@@ -263,68 +263,44 @@ mod tests {
 
     #[test]
     fn file_test() {
-        assert_eq!(file(CompleteByteSlice(b"a")), Ok((EMPTY_SLICE, File::A)));
-        assert_eq!(file(CompleteByteSlice(b"b")), Ok((EMPTY_SLICE, File::B)));
-        assert_eq!(file(CompleteByteSlice(b"c")), Ok((EMPTY_SLICE, File::C)));
-        assert_eq!(file(CompleteByteSlice(b"d")), Ok((EMPTY_SLICE, File::D)));
-        assert_eq!(file(CompleteByteSlice(b"e")), Ok((EMPTY_SLICE, File::E)));
-        assert_eq!(file(CompleteByteSlice(b"f")), Ok((EMPTY_SLICE, File::F)));
-        assert_eq!(file(CompleteByteSlice(b"g")), Ok((EMPTY_SLICE, File::G)));
-        assert_eq!(file(CompleteByteSlice(b"h")), Ok((EMPTY_SLICE, File::H)));
+        assert_eq!(file(CompleteStr("a")), Ok((EMPTY_SLICE, File::A)));
+        assert_eq!(file(CompleteStr("b")), Ok((EMPTY_SLICE, File::B)));
+        assert_eq!(file(CompleteStr("c")), Ok((EMPTY_SLICE, File::C)));
+        assert_eq!(file(CompleteStr("d")), Ok((EMPTY_SLICE, File::D)));
+        assert_eq!(file(CompleteStr("e")), Ok((EMPTY_SLICE, File::E)));
+        assert_eq!(file(CompleteStr("f")), Ok((EMPTY_SLICE, File::F)));
+        assert_eq!(file(CompleteStr("g")), Ok((EMPTY_SLICE, File::G)));
+        assert_eq!(file(CompleteStr("h")), Ok((EMPTY_SLICE, File::H)));
     }
 
     #[test]
     fn rank_test() {
-        assert_eq!(
-            rank(CompleteByteSlice(b"1")),
-            Ok((EMPTY_SLICE, Rank::First))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"2")),
-            Ok((EMPTY_SLICE, Rank::Second))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"3")),
-            Ok((EMPTY_SLICE, Rank::Third))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"4")),
-            Ok((EMPTY_SLICE, Rank::Fourth))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"5")),
-            Ok((EMPTY_SLICE, Rank::Fifth))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"6")),
-            Ok((EMPTY_SLICE, Rank::Sixth))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"7")),
-            Ok((EMPTY_SLICE, Rank::Seventh))
-        );
-        assert_eq!(
-            rank(CompleteByteSlice(b"8")),
-            Ok((EMPTY_SLICE, Rank::Eight))
-        );
+        assert_eq!(rank(CompleteStr("1")), Ok((EMPTY_SLICE, Rank::First)));
+        assert_eq!(rank(CompleteStr("2")), Ok((EMPTY_SLICE, Rank::Second)));
+        assert_eq!(rank(CompleteStr("3")), Ok((EMPTY_SLICE, Rank::Third)));
+        assert_eq!(rank(CompleteStr("4")), Ok((EMPTY_SLICE, Rank::Fourth)));
+        assert_eq!(rank(CompleteStr("5")), Ok((EMPTY_SLICE, Rank::Fifth)));
+        assert_eq!(rank(CompleteStr("6")), Ok((EMPTY_SLICE, Rank::Sixth)));
+        assert_eq!(rank(CompleteStr("7")), Ok((EMPTY_SLICE, Rank::Seventh)));
+        assert_eq!(rank(CompleteStr("8")), Ok((EMPTY_SLICE, Rank::Eight)));
     }
 
     #[test]
     fn promotion_piece_test() {
         assert_eq!(
-            promotion_piece(CompleteByteSlice(b"k")),
+            promotion_piece(CompleteStr("k")),
             Ok((EMPTY_SLICE, PromotionPiece::Knight))
         );
         assert_eq!(
-            promotion_piece(CompleteByteSlice(b"b")),
+            promotion_piece(CompleteStr("b")),
             Ok((EMPTY_SLICE, PromotionPiece::Bishop))
         );
         assert_eq!(
-            promotion_piece(CompleteByteSlice(b"r")),
+            promotion_piece(CompleteStr("r")),
             Ok((EMPTY_SLICE, PromotionPiece::Rook))
         );
         assert_eq!(
-            promotion_piece(CompleteByteSlice(b"q")),
+            promotion_piece(CompleteStr("q")),
             Ok((EMPTY_SLICE, PromotionPiece::Queen))
         );
     }
