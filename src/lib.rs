@@ -28,13 +28,17 @@ pub struct Engine {
 }
 
 impl Engine {
-    pub fn new(path: String, handle: &Handle) -> impl Future<Item = Engine, Error = ()> {
-        let mut process = Command::new(path)
+    pub fn from_path(path: String, handle: &Handle) -> impl Future<Item = Engine, Error = ()> {
+        let process = Command::new(path)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn_async(&handle)
             .expect("failed to spawn chess engine");
 
+        Engine::new(process)
+    }
+
+    pub fn new(mut process: tokio_process::Child) -> impl Future<Item = Engine, Error = ()> {
         let lines = lines(BufReader::new(process.stdout().take().unwrap()));
         let stdin = process.stdin().take().unwrap();
 
@@ -153,7 +157,7 @@ impl Engine {
     ///
     /// fn main() {
     ///     let mut core = Core::new().unwrap();
-    ///     let future = Engine::new("stockfish".to_string(), &core.handle())
+    ///     let future = Engine::from_path("stockfish".to_string(), &core.handle())
     ///         .and_then(|engine| engine.write("go nodes 1000".to_string()));
     ///     core.run(future);
     /// }
@@ -224,7 +228,7 @@ mod tests {
     #[test]
     fn engine_test() {
         let mut core = Core::new().unwrap();
-        let engine_future = Engine::new("stockfish".to_string(), &core.handle());
+        let engine_future = Engine::from_path("stockfish".to_string(), &core.handle());
         let mut engine = core.run(engine_future).unwrap();
         engine = core.run(engine.go("nodes 1000".to_string())).unwrap().0;
         engine = core.run(engine.ponder_hit()).unwrap();
